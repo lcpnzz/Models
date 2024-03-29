@@ -17,7 +17,7 @@ jobs:
       - name: Update Submodule
         run: |
           cd zprime_pyrate  # Navigate to the submodule directory
-          git pull origin main  # Pull the latest changes from the main branch of the submodule
+          git pull origin main --rebase=preserve  # Pull the latest changes from the main branch of the submodule
           cd ..  # Navigate back to the main repository directory
 
       - name: Commit and Push Changes
