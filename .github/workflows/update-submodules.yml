@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'zprime_pyrate/**'
+      - 'NLO_DMSimpt/**'
       - '.github/workflows/update-submodule.yml'  # Ensure workflow changes also trigger the workflow
   workflow_dispatch:  # Allow manual triggering of the workflow
 
@@ -23,6 +24,9 @@ jobs:
           cd zprime_pyrate  # Navigate to the submodule directory
           git pull origin main --rebase  # Pull the latest changes from the main branch of the submodule
           cd ..  # Navigate back to the main repository directory
+          cd NLO_DMSimpt # Navigate to the submodule directory
+          git pull origin main --rebase  # Pull the latest changes from the main branch of the submodule
+          cd ..  # Navigate back to the main repository directory
 
       - name: Commit and Push Changes
         if: steps.check_changes.outputs.has_changes == '1'
@@ -30,5 +34,6 @@ jobs:
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           git add zprime_pyrate  # Add the updated submodule to the staging area
-          git commit -m "Update submodule zprime_pyrate"
+          git add NLO_DMSimpt    # Add the updated submodule to the staging area
+          git commit -m "Update all submodules"
           git push

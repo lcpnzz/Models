@@ -1,3 +1,6 @@
 [submodule "zprime_pyrate"]
 	path = zprime_pyrate
 	url = https://github.com/BFuks/zprime_pyrate
+[submodule "NLO_DMSimpt"]
+	path = NLO_DMSimpt
+	url = https://github.com/BFuks/DMSimpt.git
