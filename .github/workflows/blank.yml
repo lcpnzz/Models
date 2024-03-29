@@ -2,8 +2,6 @@ name: Update Submodule
 
 on:
   push:
-    branches:
-      - '**'
     paths:
       - 'zprime_pyrate/**'
       - '.github/workflows/update-submodule.yml'  # Ensure workflow changes also trigger the workflow
