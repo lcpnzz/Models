@@ -1,0 +1,3 @@
+[submodule "zprime_pyrate"]
+	path = zprime_pyrate
+	url = https://github.com/BFuks/zprime_pyrate
