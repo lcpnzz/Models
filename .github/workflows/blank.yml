@@ -3,8 +3,9 @@ name: Update Submodule
 on:
   push:
     branches:
-      - main
-
+      - '**'
+    paths:
+      - 'zprime_pyrate/**'
 jobs:
   update:
     runs-on: ubuntu-latest
