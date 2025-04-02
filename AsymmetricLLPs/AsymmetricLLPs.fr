@@ -1,0 +1,501 @@
+(***************************************************************************************************************)
+(******                                                                                                   ******)
+(******                       This is the FeynRules model file for a toy model with                       ******)
+(******                    a mediator decaying into two different sub-ttbar threshold LLPs.               ******)
+(******                    The mediator is produced through an effective gluon fusion vertex              ******)
+(******                                                                                                   ******)
+(***************************************************************************************************************)
+
+M$ModelName = "AsymmetricLLPs";
+
+
+M$Information = {Authors -> {"L. Corpe, A. Goudelis, L. Millot"}, 
+                 Date -> "20. 03. 2025",
+                 Institutions -> {"Laboratoire de Physique de Clermont Auvergne"},
+                 Emails -> {""},
+                 References -> "https://arxiv.org/abs/2502.18021"
+};
+
+
+(******* Index definitions ********)
+IndexRange[ Index[Spin] ] = Range[4]
+IndexRange[ Index[Generation] ] = Range[3]
+IndexRange[ Index[Colour] ] = NoUnfold[Range[3]]
+IndexRange[ Index[Gluon] ] = NoUnfold[Range[8]]
+IndexRange[ Index[SU2W] ] = Unfold[Range[3]]
+IndexRange[ Index[SU2D] ] = Unfold[Range[2]]
+
+
+IndexStyle[Spin, s]
+IndexStyle[Colour, i]
+IndexStyle[Generation, f]
+IndexStyle[Gluon ,a]
+IndexStyle[SU2W ,j]
+IndexStyle[SU2D, k];
+
+(****************************)
+(**** Interaction orders ****)
+(****   (needed by mg5)  ****)
+(****************************)
+M$InteractionOrderHierarchy = 
+{
+  {NP,   1},
+  {HIG,  1},
+  {QCD,  1},
+  {QED,  2}
+};
+
+(******* Gauge parameters (for FeynArts) ********)
+
+GaugeXi[ V[1] ] = GaugeXi[A];
+GaugeXi[ V[2] ] = GaugeXi[Z];
+GaugeXi[ V[3] ] = GaugeXi[W];
+GaugeXi[ V[4] ] = GaugeXi[G];
+GaugeXi[ S[1] ] = 1;
+GaugeXi[ S[2] ] = GaugeXi[Z];
+GaugeXi[ S[3] ] = GaugeXi[W];
+GaugeXi[ U[1] ] = GaugeXi[A];
+GaugeXi[ U[2] ] = GaugeXi[Z];
+GaugeXi[ U[31] ] = GaugeXi[W];
+GaugeXi[ U[32] ] = GaugeXi[W];
+GaugeXi[ U[4] ] = GaugeXi[G];
+
+
+(****************  Parameters *************)
+
+(* External Parameters *)
+  
+M$Parameters = {
+ 
+   k == {
+        ParameterType -> External,
+        ComplexParameter -> False,
+        BlockName -> HIDDEN,
+        ParameterName -> k,
+        Value -> 1,
+        InteractionOrder -> {NP, 1},
+        Description -> "Dimensionless coupling between the mediator and the LLPs"},   
+
+   ct1 == {
+          ParameterType -> External,
+          ComplexParameter -> False,
+          BlockName -> HIDDEN,
+          ParameterName -> ct1,
+          Value -> 1,
+          InteractionOrder -> {NP, -2},
+          Description -> "decay length of LLP1"},  	
+
+   ct2 == {
+          ParameterType -> External,
+          ComplexParameter -> False,
+          BlockName -> HIDDEN,
+          ParameterName -> ct2,
+          Value -> 1,
+          InteractionOrder -> {NP, -2},
+          Description -> "decay length of LLP2"}, 
+        
+   hbar == {
+           ParameterType -> External,
+           ComplexParameter -> False,
+           BlockName -> SMINPUTS,
+           ParameterName -> hbar,
+           Value -> 6.582119569*10^(-25),
+           Description -> "hbar"},   
+        
+   c == {
+       	ParameterType -> External,
+        ComplexParameter -> False,
+       	BlockName -> SMINPUTS,
+       	ParameterName -> c,
+       	Value -> 299 792 458,
+       	Description -> "speed of light"},   
+
+   Gf == {
+         ParameterType -> External,
+         ComplexParameter -> False,
+         BlockName -> SMINPUTS,
+         InteractionOrder -> {QED, 2},
+         Value -> 1.16639 * 10^(-5),
+         Description -> "Fermi constant"},
+
+   \[Alpha]S == {
+                ParameterType -> External,
+                ComplexParameter -> False,
+                BlockName -> SMINPUTS,
+                ParameterName -> aS,
+                InteractionOrder -> {QCD, 2},
+                Value -> 0.118,
+                Description -> "Strong coupling constant at the Z pole."}, 
+
+(********************************************)
+(*parameters for effective ggh and gagah vertices*)
+(*********************************************)  
+
+   cl =={
+        ParameterType -> External,
+        ComplexParameter -> False,
+        BlockName -> HIDDEN,
+        ParameterName -> cl,
+        Value -> 1,
+        InteractionOrder -> {HIG, 1},
+        Description -> "dummy coefficient of ggh coupling"}, 
+   Lambda =={
+            ParameterType -> External,
+            ComplexParameter -> False,
+            BlockName -> HIDDEN,
+            ParameterName -> Lambda,
+            Value -> 1000,
+            Description -> "effective ggh coupling"}, 
+
+
+(* Internal Parameters *)
+
+(* Gauge couplings *)
+
+  \[Alpha]EWM1== {
+                 ParameterType -> External,
+                 ComplexParameter -> False,
+                 BlockName -> SMINPUTS,
+                 ParameterName -> aEWM1,
+                 InteractionOrder -> {QED, -2},
+                 Value -> 127.9,
+                 Description -> "Inverse of the electroweak coupling constant"},
+        
+  \[Alpha]EW == {
+                ParameterType -> Internal,
+                ComplexParameter -> False,
+                Value -> 1/\[Alpha]EWM1,
+                ParameterName -> aEW,
+                InteractionOrder -> {QED, 2},
+                Description -> "Electroweak coupling constant"},
+
+   ee == {
+         TeX -> e,
+         ParameterType -> Internal,
+         ComplexParameter -> False,
+         Value -> Sqrt[4 Pi \[Alpha]EW],
+         InteractionOrder -> {QED, 1},
+         Description -> "Electric coupling constant"},
+
+
+   gs == {
+         TeX -> Subscript[g, s],
+         ParameterType -> Internal,
+         ComplexParameter -> False,
+         Value -> Sqrt[4 Pi \[Alpha]S],
+         InteractionOrder -> {QCD, 1},
+         ParameterName -> G,
+         Description -> "Strong coupling constant"},
+
+
+(* Higgs sector *)
+
+   v == {
+        ParameterType -> Internal,
+        ComplexParameter -> False,
+        Value -> 1/Sqrt[Gf* Sqrt[2]],
+        InteractionOrder -> {QED, -1},
+        Description -> "SM Higgs VEV"},
+  
+        
+(* Yukawa sector coupling *)
+
+        
+(* Default version: both LLPs are below the ttbar threshold *)
+
+   y1 =={
+        ParameterType -> Internal,
+        ComplexParameter -> False,
+        Value -> Sqrt[(hbar Pi v^2 ms1^2)/( (ct1/c) 
+        ( (3(Mu[1])^2 (ms1^2-4(Mu[1])^2 )^(3/2)) + (3(Mu[2])^2 (ms1^2-4(Mu[2])^2 )^(3/2))  
+          
+      + (3(Md[1])^2 (ms1^2-4(Md[1])^2 )^(3/2)) + (3(Md[2])^2 (ms1^2-4(Md[2])^2 )^(3/2)) + (3(Md[3])^2 (ms1^2-4(Md[3])^2 )^(3/2))
+           
+      + ((Ml[3])^2 (ms1^2-4(Ml[3])^2)^(3/2)) ) 
+        )],
+        InteractionOrder -> {NP, 1},        
+        Description -> "yukawa coupling 1"},        
+
+   y2 =={
+        ParameterType -> Internal,
+        ComplexParameter -> False,
+        Value -> Sqrt[(hbar Pi v^2 ms2^2)/( (ct2/c) 
+        (3((Mu[1])^2 (ms2^2-4(Mu[1])^2 )^(3/2)) + (3(Mu[2])^2 (ms2^2-4(Mu[2])^2 )^(3/2)) 
+          
+      + (3(Md[1])^2 (ms2^2-4(Md[1])^2 )^(3/2)) + (3(Md[2])^2 (ms2^2-4(Md[2])^2 )^(3/2)) + (3(Md[3])^2 (ms2^2-4(Md[3])^2 )^(3/2))
+           
+      + (Ml[3]^2(ms2^2-4(Ml[3])^2)^(3/2)) ) 
+        )],
+        InteractionOrder -> {NP, 1},
+        Description -> "yukawa coupling 2"}
+
+        
+(* Version to be used (or modified) in case both (or one) of the LLPs is above the ttbar threshold *)
+(*
+   y1 =={
+        ParameterType -> Internal,
+        ComplexParameter -> False,
+        Value -> Sqrt[(hbar Pi v^2 ms1^2)/( (ct1/c) 
+        ( (3(Mu[1])^2 (ms1^2-4(Mu[1])^2 )^(3/2)) + (3(Mu[2])^2 (ms1^2-4(Mu[2])^2 )^(3/2)) + (3(Mu[3])^2 (ms1^2-4(Mu[3])^2 )^(3/2)) 
+          
+      + (3(Md[1])^2 (ms1^2-4(Md[1])^2 )^(3/2)) + (3(Md[2])^2 (ms1^2-4(Md[2])^2 )^(3/2)) + (3(Md[3])^2 (ms1^2-4(Md[3])^2 )^(3/2))
+           
+      + ((Ml[3])^2 (ms1^2-4(Ml[3])^2)^(3/2)) ) 
+        )],
+        InteractionOrder -> {NP, 1},        
+        Description -> "yukawa coupling 1"},
+*)       
+(*   
+   y2 =={
+        ParameterType -> Internal,
+        ComplexParameter -> False,
+        Value -> Sqrt[(hbar Pi v^2 ms2^2)/( (ct2/c) 
+        (3((Mu[1])^2 (ms2^2-4(Mu[1])^2 )^(3/2)) + (3(Mu[2])^2 (ms2^2-4(Mu[2])^2 )^(3/2)) + (3(Mu[3])^2 (ms2^2-4(Mu[3])^2 )^(3/2)) 
+          
+      + (3(Md[1])^2 (ms2^2-4(Md[1])^2 )^(3/2)) + (3(Md[2])^2 (ms2^2-4(Md[2])^2 )^(3/2)) + (3(Md[3])^2 (ms2^2-4(Md[3])^2 )^(3/2))
+           
+      + (Ml[3]^2(ms2^2-4(Ml[3])^2)^(3/2)) ) 
+        )],
+        InteractionOrder -> {NP, 1},
+        Description -> "yukawa coupling 2"}      
+*)
+}
+
+
+(************** Gauge Groups ******************)
+
+M$GaugeGroups = {
+
+  SU2L == { 
+    Abelian           -> False, 
+    CouplingConstant  -> gw, 
+    GaugeBoson        -> Wi, 
+    StructureConstant -> Eps, 
+    Representations   -> {Ta,SU2D}, 
+    Definitions       -> {Ta[a_,b_,c_]->PauliSigma[a,b,c]/2, FSU2L[i_,j_,k_]:> I Eps[i,j,k]}
+  },
+  
+   SU3C == {
+        Abelian -> False,
+        GaugeBoson -> G,
+        StructureConstant -> f,
+        SymmetricTensor -> dSUN,
+        Representations -> {T, Colour},
+        CouplingConstant -> gs}
+}
+
+(********* Particle Classes **********)
+
+M$ClassesDescription = {
+  (************ Gauge Bosons ***************)
+	(* Gauge bosons: Q = 0 *)
+   V[1] == {
+            ClassName -> A,
+        	SelfConjugate -> True,
+        	Indices -> {},
+        	Mass -> 0,
+            Width -> 0,
+        	PropagatorLabel -> "a",
+        	PropagatorType -> W,
+        	PropagatorArrow -> None,
+            PDG -> 22,
+            FullName -> "Photon" },
+   V[4] == {
+        ClassName -> G,
+	SelfConjugate -> True,
+	Indices -> {Index[Gluon]},
+	Mass -> 0,
+        Width -> 0,
+        PropagatorLabel -> G,
+	PropagatorType -> C,
+	PropagatorArrow -> None,
+        PDG -> 21,
+        FullName -> "G" },
+
+(********** Fermions ************)
+(* Fermions: physical fields *)
+ 
+   F[2] == { 
+    ClassName      -> l, 
+    Unphysical     -> False,
+    ClassMembers     -> {e, mu, ta},
+    Indices          -> {Index[Generation]},
+    FlavorIndex      -> Generation,
+    SelfConjugate  -> False,
+    Mass             -> {Ml, {Me,5.11*^-4}, {MMU,0.10566}, {MTA,1.777}},
+    Width            -> 0,
+    QuantumNumbers   -> {Q -> -1, LeptonNumber -> 1},
+    PropagatorLabel  -> {"l", "e", "mu", "ta"},
+    PDG              -> {11, 13, 15},
+    ParticleName     -> {"e-", "mu-", "ta-"},
+    AntiParticleName -> {"e+", "mu+", "ta+"}
+    },
+  
+   F[3] == { 
+    ClassName        -> uq, 
+    ClassMembers     -> {u, c, t},
+    Unphysical       -> False, 
+    Indices          -> {Index[Generation], Index[Colour]},
+    FlavorIndex      -> Generation,
+    SelfConjugate    -> False,
+    Mass             -> {Mu, {MU, 2.55*^-3}, {MC,1.27}, {MT,172}},
+    Width            -> {0, 0, {WT,1.50833649}},
+    QuantumNumbers   -> {Q -> 2/3},
+    PropagatorLabel  -> {"uq", "u", "c", "t"},
+    PDG              -> {2, 4, 6},
+    ParticleName     -> {"u",  "c",  "t" },
+    AntiParticleName -> {"u~", "c~", "t~"}
+    },  
+    
+    
+   F[4] == { 
+    ClassName        -> dq, 
+    ClassMembers     -> {d, s, b},
+    Unphysical       -> False, 
+    Indices          -> {Index[Generation], Index[Colour]},
+    FlavorIndex      -> Generation,
+    Mass             -> {Md, {MD,5.04*^-3}, {MS,0.101}, {MB,4.7}}, 
+    Width            -> 0,
+    SelfConjugate    -> False,
+    QuantumNumbers   -> {Q -> -1/3},
+    PropagatorLabel  -> {"dq", "d", "s", "b"},
+    PDG              -> {1,3,5},
+    ParticleName     -> {"d",  "s",  "b" },
+    AntiParticleName -> {"d~", "s~", "b~"}
+    },
+   
+ 
+(* Fermions: unphysical fields *)
+
+  F[11] == { 
+    ClassName      -> LL, 
+    Unphysical     -> True, 
+    Indices        -> {Index[SU2D], Index[Generation]},
+    FlavorIndex    -> SU2D,
+    SelfConjugate  -> False,
+    QuantumNumbers -> {Y -> -1/2},
+    Definitions    -> { LL[sp1_,1,ff_] :> Module[{sp2}, ProjM[sp1,sp2] vl[sp2,ff]], LL[sp1_,2,ff_] :> Module[{sp2}, ProjM[sp1,sp2] l[sp2,ff]] }
+  },
+  
+  F[12] == { 
+    ClassName      -> lR, 
+    Unphysical     -> True, 
+    Indices        -> {Index[Generation]},
+    FlavorIndex    -> Generation,
+    SelfConjugate  -> False,
+    QuantumNumbers -> {Y -> -1},
+    Definitions    -> { lR[sp1_,ff_] :> Module[{sp2}, ProjP[sp1,sp2] l[sp2,ff]] }
+  },
+  
+  F[13] == { 
+    ClassName      -> QL, 
+    Unphysical     -> True, 
+    Indices        -> {Index[SU2D], Index[Generation], Index[Colour]},
+    FlavorIndex    -> SU2D,
+    SelfConjugate  -> False,
+    QuantumNumbers -> {Y -> 1/6},
+    Definitions    -> { 
+      QL[sp1_,1,ff_,cc_] :> Module[{sp2}, ProjM[sp1,sp2] uq[sp2,ff,cc]], 
+      QL[sp1_,2,ff_,cc_] :> Module[{sp2,ff2}, ProjM[sp1,sp2] dq[sp2,ff,cc]] }
+  },
+  F[14] == { 
+    ClassName      -> uR, 
+    Unphysical     -> True, 
+    Indices        -> {Index[Generation], Index[Colour]},
+    FlavorIndex    -> Generation,
+    SelfConjugate  -> False,
+    QuantumNumbers -> {Y -> 2/3},
+    Definitions    -> { uR[sp1_,ff_,cc_] :> Module[{sp2}, ProjP[sp1,sp2] uq[sp2,ff,cc]] }
+  },
+  F[15] == { 
+    ClassName      -> dR, 
+    Unphysical     -> True, 
+    Indices        -> {Index[Generation], Index[Colour]},
+    FlavorIndex    -> Generation,
+    SelfConjugate  -> False,
+    QuantumNumbers -> {Y -> -1/3},
+    Definitions    -> { dR[sp1_,ff_,cc_] :> Module[{sp2}, ProjP[sp1,sp2] dq[sp2,ff,cc]] }
+  },
+  
+    
+(************ Scalar Fields **********)
+	(* physical Higgs: Q = 0 *) 
+  S[11] == {
+       ClassName       -> h,
+       SelfConjugate   -> True,
+       Mass            -> {mh,600},
+       Width           -> {WH,0.00282299},
+       PropagatorLabel -> "h",
+       PropagatorType  -> D,
+       PropagatorArrow -> None,
+       PDG             -> 25,
+       ParticleName    -> "h",
+       FullName        -> "h"
+       },
+
+  S[12] == {
+       ClassName       -> s1,
+       SelfConjugate   -> True,
+       Mass            -> {ms1,500},
+       Width           -> {Ws1,hbar/(ct1/c)},
+       PDG             -> "35",
+       ParticleName    -> "s1",
+       FullName        -> "s1"
+       },
+       
+  S[13] == {
+       ClassName       -> s2,
+       SelfConjugate   -> True,
+       Mass            -> {ms2,500},
+       Width           -> {Ws2,hbar/(ct2/c)},
+       PDG             -> "36",
+       ParticleName    -> "s2",
+       FullName        -> "s2"
+       }
+
+}
+(******************** Higgs Lagrangian terms****************************)
+
+Lmass := - (mh^2/2) h^2  - (ms1^2/2) s1^2 -(ms2^2/2) s2^2 + k v h s1 s2 ;
+
+(***********************************************************************)
+
+Lggh := Block[{mu,nu,ii,aa}, 
+  ExpandIndices[ cl/Lambda h FS[G,mu,nu,aa] FS[G,mu,nu,aa], FlavorExpand->SU2W]];
+
+(***********************************************************************)
+
+LFermions := Block[{mu}, 
+  ExpandIndices[I*(
+    QLbar.Ga[mu].DC[QL, mu] + LLbar.Ga[mu].DC[LL, mu] + uRbar.Ga[mu].DC[uR, mu] + dRbar.Ga[mu].DC[dR, mu] + lRbar.Ga[mu].DC[lR, mu]), 
+  FlavorExpand->{SU2W,SU2D}]/.{CKM[a_,b_] Conjugate[CKM[a_,c_]]->IndexDelta[b,c], CKM[b_,a_] Conjugate[CKM[c_,a_]]->IndexDelta[b,c]}];
+
+(***********************************************************************)
+
+LQCD := Block[{mu,nu,ii,aa}, 
+  ExpandIndices[ - 1/4 FS[G,mu,nu,aa] FS[G,mu,nu,aa], FlavorExpand->SU2W]];
+
+(***********************************************************************)
+
+LBSM := Block[{sp,ii,jj,cc,ff1,ff2,ff3},
+ 
+  dec = ExpandIndices[
+
+ y1 s1 (Sqrt[2] Ml[3]/v lbar[sp,3].l[sp,3] + Sqrt[2] Mu[ff]/v uqbar[sp,ff,cc].uq[sp,ff,cc] + Sqrt[2] Md[ff]/v dqbar[sp,ff,cc].dq[sp,ff,cc]) 
+
++ y2 s2 (Sqrt[2] Ml[3]/v lbar[sp,3].l[sp,3] + Sqrt[2] Mu[ff]/v uqbar[sp,ff,cc].uq[sp,ff,cc] + Sqrt[2] Md[ff]/v dqbar[sp,ff,cc].dq[sp,ff,cc]) ,
+
+ FlavorExpand -> SU2D]; 
+  dec + HC[dec]
+
+ ];
+
+		
+(*********Total SM Lagrangian*******)	 	
+LASYM :=  LBSM + Lggh + LFermions + LQCD +Lmass ;
+
+
+
+
+
+
