@@ -4,3 +4,6 @@
 [submodule "NLO_DMSimpt"]
 	path = NLO_DMSimpt
 	url = https://github.com/BFuks/DMSimpt.git
+[submodule "vSMEFT"]
+	path = vSMEFT
+	url = https://github.com/arsenii-titov/vSMEFT.git
